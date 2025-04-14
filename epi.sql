@@ -1,49 +1,54 @@
-CREATE TABLE `epi` (
-  `id` integer PRIMARY KEY,
-  `type` integer,
-  `model` varchar(255),
-  `brand` varchar(255),
-  `serial_number` varchar(255),
-  `uuid` varchar(255),
-  `buy_date` timestamp,
-  `production_date` timestamp,
-  `service_date` timestamp,
-  `height` int,
-  `color` varchar(32)
+CREATE TABLE type_epi (
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    libelle VARCHAR(255) NOT NULL,
+    periodicite_controle INTEGER NOT NULL,
+    est_textile BOOLEAN NOT NULL
 );
 
-CREATE TABLE `epi_controls` (
-  `id` integer PRIMARY KEY,
-  `epi_id` integer,
-  `control_date` timestamp,
-  `agent_control` varchar(100),
-  `statut` varchar(32),
-  `data` varchar(500)
+CREATE TABLE gestionnaire (
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    nom VARCHAR(255) NOT NULL,
+    prenom VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE `epi_types` (
-  `id` integer PRIMARY KEY,
-  `type` varchar(255),
-  `created_at` timestamp
+CREATE TABLE statut_controle (
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    libelle VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE `users` (
-  `id` integer PRIMARY KEY,
-  `created_at` timestamp,
-  `username` varchar(32),
-  `password` varchar(255),
-  `role` integer
+CREATE TABLE epi (
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    identifiant_perso VARCHAR(255) NOT NULL,
+    marque VARCHAR(255) NOT NULL,
+    modele VARCHAR(255) NOT NULL,
+    numero_serie VARCHAR(255) NOT NULL,
+    taille VARCHAR(255),
+    couleur VARCHAR(255),
+    date_achat DATE,
+    date_fabrication DATE,
+    date_mise_service DATE,
+    periodicite_controle INTEGER,
+    type_epi_id INTEGER NOT NULL,
+    FOREIGN KEY (type_epi_id) REFERENCES type_epi(id)
 );
 
-CREATE TABLE `users_roles` (
-  `id` integer PRIMARY KEY,
-  `created_at` timestamp,
-  `role` varchar(32),
-  `user_created` integer
+CREATE TABLE controle (
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    date_controle DATE NOT NULL,
+    remarques TEXT,
+    gestionnaire_id INTEGER NOT NULL,
+    epi_id INTEGER NOT NULL,
+    statut_id INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (gestionnaire_id) REFERENCES gestionnaire(id),
+    FOREIGN KEY (epi_id) REFERENCES epi(id),
+    FOREIGN KEY (statut_id) REFERENCES statut_controle(id)
 );
 
-ALTER TABLE `users_roles` ADD FOREIGN KEY (`user_created`) REFERENCES `users` (`role`);
-
-ALTER TABLE `epi` ADD FOREIGN KEY (`type`) REFERENCES `epi_types` (`id`);
-
-ALTER TABLE `epi_controls` ADD FOREIGN KEY (`epi_id`) REFERENCES `epi` (`id`);
+INSERT INTO statut_controle (libelle) VALUES
+('Opérationnel'),
+('A réparer'),
+('Mis au rebut');
